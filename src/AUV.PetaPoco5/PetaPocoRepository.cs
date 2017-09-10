@@ -17,20 +17,20 @@
         : IPetaPocoRepository<TEntity,TKey>
         where TEntity : IEntity<TKey>
     {
-        private readonly IDbContext _context;
+        private readonly IUnitOfWork _context;
 
         /// <summary>
         /// 获取当前操作的 <see cref="T:AUV.PetaPoco5.IDataBaseContext" /> 实例。
         /// </summary>
-        IDbContext IPetaPocoRepository<TEntity,TKey>.DbContext => _context;
+        IUnitOfWork IPetaPocoRepository<TEntity,TKey>.UnitOfWork => _context;
 
         /// <summary>
-        /// 使用指定的 <see cref="IDbContext"/> 实例初始化 <see cref="PetaPocoRepository{TEntity, TKey}"/> 类的新实例。
+        /// 使用指定的 <see cref="IUnitOfWork"/> 实例初始化 <see cref="PetaPocoRepository{TEntity, TKey}"/> 类的新实例。
         /// </summary>
-        /// <param name="context">实现了 <see cref="IDbContext"/> 的仓储上下文管理实例。</param>
-        public PetaPocoRepository(IDbContext context)
+        /// <param name="context">表示一个工作单元。</param>
+        public PetaPocoRepository(IUnitOfWork context)
         {
-            _context = context;
+            _context = context ;
         }
 
         /// <summary>
@@ -39,25 +39,14 @@
         /// <param name="entity">需要添加的实体。</param>
         public virtual void Add(TEntity entity)
         {
-            _context.Database.Insert(entity);
+            _context.AsPetaPocoDbContext().Database.Insert(entity);
             OutputLog();
         }
 
         /// <summary>
         /// 输出日志。
         /// </summary>
-        void OutputLog() => _context.SqlLog?.Invoke(_context.Database.LastCommand);
-                
-        /// <summary>
-        /// 当前仓储可以对指定实体进行修改。将会对实体中的所有字段进行更新。
-        /// </summary>
-        /// <param name="entity">需要修改的实体。</param>
-        public virtual void Modify(TEntity entity)
-        {
-            _context.Database.Update(entity);
-            OutputLog();
-        }
-
+        void OutputLog() => _context.AsPetaPocoDbContext().SqlLog?.Invoke(_context.AsPetaPocoDbContext().Database.LastCommand);
 
 
         /// <summary>
@@ -66,7 +55,7 @@
         /// <param name="entity">需要移除的实体。</param>
         public virtual void Remove(TEntity entity)
         {
-            _context.Database.Delete<TEntity>(entity);
+            _context.AsPetaPocoDbContext().Database.Delete<TEntity>(entity);
             OutputLog();
         }
 
@@ -79,7 +68,7 @@
             => Task.Run(() =>
             {
                 OutputLog();
-                return _context.Database.SingleOrDefault<TEntity>(id);
+                return _context.AsPetaPocoDbContext().Database.SingleOrDefault<TEntity>(id);
             });
         
 
@@ -88,7 +77,7 @@
         /// </summary>
         /// <param name="sql">The SQL.</param>
         /// <returns></returns>
-        public virtual IEnumerable<TEntity> Query(Sql sql) => _context.Database.Query<TEntity>(sql);
+        public virtual IEnumerable<TEntity> Query(Sql sql) => _context.AsPetaPocoDbContext().Database.Query<TEntity>(sql);
 
         /// <summary>
         /// 表示查询集合的标准。
@@ -96,7 +85,7 @@
         /// <returns>
         /// 可查询的实体对象。
         /// </returns>
-        IQueryable<TEntity> IRepository<TEntity, TKey>.Query() => _context.Database.Fetch<TEntity>(Sql.Builder).AsQueryable();
+        IQueryable<TEntity> IRepository<TEntity, TKey>.Query() => _context.AsPetaPocoDbContext().Database.Fetch<TEntity>(Sql.Builder).AsQueryable();
 
     }
 }

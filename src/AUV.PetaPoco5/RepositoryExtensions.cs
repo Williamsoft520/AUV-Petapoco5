@@ -20,7 +20,7 @@ namespace AUV.PetaPoco5
         public static void OutputLog<TEntity, TKey>(this IRepository<TEntity, TKey> repository)
             where TEntity : class, IEntity<TKey>
         =>
-            repository.AsPetaPoco().UnitOfWork?.SqlLog?.Invoke(repository.AsPetaPoco().UnitOfWork.Database.LastCommand);
+            repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().AsPetaPocoDbContext()?.SqlLog?.Invoke(repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().Database.LastCommand);
         
 
         /// <summary>
@@ -50,13 +50,11 @@ namespace AUV.PetaPoco5
         /// <typeparam name="TKey">主键类型。</typeparam>
         /// <param name="repository">
         ///   <see cref="IRepository{TEntity, TKey}" /> 实例。</param>
-        /// <returns>
-        /// <param name="entity">作为需要修改的实体，赋值的属性表示需要修改的值。</param>
         /// <param name="sql">需要更新的条件，这是一个 <see cref="T:PetaPoco.Sql" /> 的实例。</param>
         public static void Modify<TEntity,TKey>(this IRepository<TEntity,TKey> repository, PetaPoco.Sql sql)
             where TEntity : class, IEntity<TKey>
         {
-            repository.AsPetaPoco().UnitOfWork.Database.Update<TEntity>(sql);
+            repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().Database.Update<TEntity>(sql);
             repository.AsPetaPoco().OutputLog();
         }
 
@@ -67,13 +65,12 @@ namespace AUV.PetaPoco5
         /// <typeparam name="TKey">主键类型。</typeparam>
         /// <param name="repository">
         ///   <see cref="IRepository{TEntity, TKey}" /> 实例。</param>
-        /// <returns>
         /// <param name="entity">作为需要修改的实体，赋值的属性表示需要修改的值。</param>
         /// <param name="columns">可以指定需要被更新的列。</param>
         public static void Modify<TEntity, TKey>(this IRepository<TEntity, TKey> repository, TEntity entity, IEnumerable<string> columns)
             where TEntity : class, IEntity<TKey>
         {
-            repository.AsPetaPoco().UnitOfWork.Database.Update(entity, columns);
+            repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().Database.Update(entity, columns);
             repository.AsPetaPoco().OutputLog();
         }
 
@@ -84,12 +81,11 @@ namespace AUV.PetaPoco5
         /// <typeparam name="TKey">主键类型。</typeparam>
         /// <param name="repository">
         ///   <see cref="IRepository{TEntity, TKey}" /> 实例。</param>
-        /// <returns>
         /// <param name="id">要删除的数据主键。</param>
         public static void Remove<TEntity,TKey>(this IRepository<TEntity, TKey> repository, TKey id)
              where TEntity : class, IEntity<TKey>
         {
-            repository.AsPetaPoco().UnitOfWork.Database.Delete<TEntity>(id);
+            repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().Database.Delete<TEntity>(id);
             repository.AsPetaPoco().OutputLog();
         }
 
@@ -100,12 +96,11 @@ namespace AUV.PetaPoco5
         /// <typeparam name="TKey">主键类型。</typeparam>
         /// <param name="repository">
         ///   <see cref="IRepository{TEntity, TKey}" /> 实例。</param>
-        /// <returns>
         /// <param name="sql">指定条件的 <see cref="T:PetaPoco.Sql" /> 实例。</param>
         public static void Remove<TEntity, TKey>(this IRepository<TEntity, TKey> repository, PetaPoco.Sql sql)
              where TEntity : class, IEntity<TKey>
         {
-            repository.AsPetaPoco().UnitOfWork.Database.Delete<TEntity>(sql);
+            repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().Database.Delete<TEntity>(sql);
             repository.OutputLog();
         }
 
@@ -116,7 +111,6 @@ namespace AUV.PetaPoco5
         /// <typeparam name="TKey">主键类型。</typeparam>
         /// <param name="repository">
         ///   <see cref="IRepository{TEntity, TKey}" /> 实例。</param>
-        /// <returns>
         /// <param name="page">页码。</param>
         /// <param name="size">每页的数据量。</param>
         /// <param name="sql">指定条件的 <see cref="T:PetaPoco.Sql" /> 实例。</param>
@@ -126,7 +120,7 @@ namespace AUV.PetaPoco5
         =>
             Task.Run(() =>
             {
-                var result= repository.AsPetaPoco().UnitOfWork.Database.Page<TEntity>(page, size, sql);
+                var result= repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().Database.Page<TEntity>(page, size, sql);
                 repository.OutputLog();
                 return result;
             });
@@ -144,7 +138,7 @@ namespace AUV.PetaPoco5
                        where TEntity : class, IEntity<TKey>
                     => Task.Run(() =>
                     {
-                        var result= repository.AsPetaPoco().UnitOfWork.Database.SingleOrDefault<TEntity>(sql);
+                        var result= repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().Database.SingleOrDefault<TEntity>(sql);
                         repository.AsPetaPoco().OutputLog();
                         return result;
                     });
@@ -162,7 +156,7 @@ namespace AUV.PetaPoco5
             where TEntity : class, IEntity<TKey>
                                 => Task.Run(() =>
                     {
-                        repository.AsPetaPoco().UnitOfWork.Database.Save(entity);
+                        repository.AsPetaPoco().UnitOfWork.AsPetaPocoDbContext().Database.Save(entity);
                         repository.AsPetaPoco().OutputLog();
                     });
 

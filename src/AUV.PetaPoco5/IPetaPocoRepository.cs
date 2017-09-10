@@ -14,7 +14,7 @@
         : IRepository<TEntity, TKey> where TEntity : IEntity<TKey>
     {
         /// <summary>
-        /// 获取当前操作的 <see cref="IDbContext"/> 实例。
+        /// 获取当前操作的工作单元。
         /// </summary>
         IUnitOfWork UnitOfWork { get; }
         /// <summary>

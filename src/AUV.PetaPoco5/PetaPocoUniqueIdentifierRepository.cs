@@ -16,8 +16,8 @@ namespace AUV.PetaPoco5
         /// <summary>
         /// 使用指定的 <see cref="IDbContext"/> 实例初始化 <see cref="PetaPocoUniqueIdentifierRepository{TEntity}"/> 类的新实例。
         /// </summary>
-        /// <param name="context">实现了 <see cref="T:AUV.PetaPoco5.IDataBaseContext" /> 的仓储上下文管理实例。</param>
-        public PetaPocoUniqueIdentifierRepository(IDbContext context) : base(context)
+        /// <param name="unitOfWork">实现了 <see cref="T:AUV.PetaPoco5.IDataBaseContext" /> 的仓储上下文管理实例。</param>
+        public PetaPocoUniqueIdentifierRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
     }

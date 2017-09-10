@@ -20,7 +20,7 @@ namespace AUV.PetaPoco5
         public static void OutputLog<TEntity, TKey>(this IRepository<TEntity, TKey> repository)
             where TEntity : class, IEntity<TKey>
         =>
-            repository.AsPetaPoco().DbContext?.SqlLog?.Invoke(repository.AsPetaPoco().DbContext.Database.LastCommand);
+            repository.AsPetaPoco().UnitOfWork?.SqlLog?.Invoke(repository.AsPetaPoco().UnitOfWork.Database.LastCommand);
         
 
         /// <summary>
@@ -39,13 +39,8 @@ namespace AUV.PetaPoco5
                     where TEntity : class, IEntity<TKey>
         {
             repository = repository ?? throw new ArgumentNullException(nameof(repository));
-
-            var result = repository as IPetaPocoRepository<TEntity, TKey>;
-            if (result == null)
-            {
-                throw new NotSupportedException("不支持对 IPocoRepository 的转换。");
-            }
-            return result;
+            return repository as IPetaPocoRepository<TEntity, TKey> ?? throw new NotSupportedException("不支持对 IPocoRepository 的转换。");
+            
         }
 
         /// <summary>
@@ -61,7 +56,7 @@ namespace AUV.PetaPoco5
         public static void Modify<TEntity,TKey>(this IRepository<TEntity,TKey> repository, PetaPoco.Sql sql)
             where TEntity : class, IEntity<TKey>
         {
-            repository.AsPetaPoco().DbContext.Database.Update<TEntity>(sql);
+            repository.AsPetaPoco().UnitOfWork.Database.Update<TEntity>(sql);
             repository.AsPetaPoco().OutputLog();
         }
 
@@ -78,7 +73,7 @@ namespace AUV.PetaPoco5
         public static void Modify<TEntity, TKey>(this IRepository<TEntity, TKey> repository, TEntity entity, IEnumerable<string> columns)
             where TEntity : class, IEntity<TKey>
         {
-            repository.AsPetaPoco().DbContext.Database.Update(entity, columns);
+            repository.AsPetaPoco().UnitOfWork.Database.Update(entity, columns);
             repository.AsPetaPoco().OutputLog();
         }
 
@@ -94,7 +89,7 @@ namespace AUV.PetaPoco5
         public static void Remove<TEntity,TKey>(this IRepository<TEntity, TKey> repository, TKey id)
              where TEntity : class, IEntity<TKey>
         {
-            repository.AsPetaPoco().DbContext.Database.Delete<TEntity>(id);
+            repository.AsPetaPoco().UnitOfWork.Database.Delete<TEntity>(id);
             repository.AsPetaPoco().OutputLog();
         }
 
@@ -110,7 +105,7 @@ namespace AUV.PetaPoco5
         public static void Remove<TEntity, TKey>(this IRepository<TEntity, TKey> repository, PetaPoco.Sql sql)
              where TEntity : class, IEntity<TKey>
         {
-            repository.AsPetaPoco().DbContext.Database.Delete<TEntity>(sql);
+            repository.AsPetaPoco().UnitOfWork.Database.Delete<TEntity>(sql);
             repository.OutputLog();
         }
 
@@ -131,7 +126,7 @@ namespace AUV.PetaPoco5
         =>
             Task.Run(() =>
             {
-                var result= repository.AsPetaPoco().DbContext.Database.Page<TEntity>(page, size, sql);
+                var result= repository.AsPetaPoco().UnitOfWork.Database.Page<TEntity>(page, size, sql);
                 repository.OutputLog();
                 return result;
             });
@@ -149,7 +144,7 @@ namespace AUV.PetaPoco5
                        where TEntity : class, IEntity<TKey>
                     => Task.Run(() =>
                     {
-                        var result= repository.AsPetaPoco().DbContext.Database.SingleOrDefault<TEntity>(sql);
+                        var result= repository.AsPetaPoco().UnitOfWork.Database.SingleOrDefault<TEntity>(sql);
                         repository.AsPetaPoco().OutputLog();
                         return result;
                     });
@@ -167,7 +162,7 @@ namespace AUV.PetaPoco5
             where TEntity : class, IEntity<TKey>
                                 => Task.Run(() =>
                     {
-                        repository.AsPetaPoco().DbContext.Database.Save(entity);
+                        repository.AsPetaPoco().UnitOfWork.Database.Save(entity);
                         repository.AsPetaPoco().OutputLog();
                     });
 

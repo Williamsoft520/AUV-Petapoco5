@@ -1,6 +1,7 @@
 ﻿namespace AUV.PetaPoco5
 {
     using AUV.Data;
+    using PetaPoco;
     using System.Collections.Generic;
 
     /// <summary>
@@ -15,7 +16,7 @@
         /// <summary>
         /// 获取当前操作的 <see cref="IDbContext"/> 实例。
         /// </summary>
-        IDbContext DbContext { get; }
+        IUnitOfWork UnitOfWork { get; }
         /// <summary>
         /// 获取指定 <see cref="PetaPoco.Sql"/> 实例查询的结果。
         /// </summary>
